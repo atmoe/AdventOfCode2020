@@ -3,7 +3,7 @@
 import sys
 import re
 
-debug = True
+debug = False
 def dbgPrint(string):
     if debug: print(string)
 
@@ -60,10 +60,8 @@ for idx,i in enumerate(instructions):
     if i[0] == "jmp" or i[0] == "nop":
         pcsToSwap.append(idx)
 
-dbgPrint(pcsToSwap)
-
 for swapPC in pcsToSwap:
-    print(f"--- trying PC={swapPC} ---")
+    dbgPrint(f"--- trying PC={swapPC} ---")
     revisit = False
     terminated = False
     pc = 0
