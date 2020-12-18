@@ -10,12 +10,14 @@ def dbgPrint(string, end='\n'):
     if debug: print(string, end=end)
 
 def print3DGrid(g):
+    if not debug: return
     for z in range(len(g)):
         for y in range(len(g[0])):
             print("".join(g[z][y]))
         print()
 
 def print4DGrid(g):
+    if not debug: return
     for w in range(len(g)):
         for z in range(len(g[0])):
             print(f'z={z} w={w}')
@@ -114,10 +116,10 @@ for y in range(len(grid2D)):
     for x in range(len(grid2D[0])):
             grid[0][y][x] = grid2D[y][x]
 
-print("--- Initial Grid ---")
+dbgPrint("--- Initial Grid ---")
 print3DGrid(grid)
 
-print("--- Padded Grid ---")
+dbgPrint("--- Padded Grid ---")
 grid = increaseDim(grid, dims, 'width',   1)
 grid = increaseDim(grid, dims, 'width',  -1)
 grid = increaseDim(grid, dims, 'height',  1)
@@ -130,7 +132,7 @@ numIterations = 6
 
 nextGrid = copy.deepcopy(grid)
 for i in range(numIterations):
-    print(f"--- Cycle {i+1} ---")
+    dbgPrint(f"--- Cycle {i+1} ---")
     expandW_pos=False
     expandW_neg=False
     expandH_pos=False
@@ -186,10 +188,10 @@ for y in range(len(grid2D)):
     for x in range(len(grid2D[0])):
         grid[0][0][y][x] = grid2D[y][x]
 
-print("--- Initial Grid ---")
+dbgPrint("--- Initial Grid ---")
 print4DGrid(grid)
 
-print("--- Padded Grid ---")
+dbgPrint("--- Padded Grid ---")
 grid = increaseDim(grid, dims, 'width',   1)
 grid = increaseDim(grid, dims, 'width',  -1)
 grid = increaseDim(grid, dims, 'height',  1)
@@ -204,7 +206,7 @@ numIterations = 6
 
 nextGrid = copy.deepcopy(grid)
 for i in range(numIterations):
-    print(f"--- Cycle {i+1} ---")
+    dbgPrint(f"--- Cycle {i+1} ---")
     expandW_pos=False
     expandW_neg=False
     expandH_pos=False
