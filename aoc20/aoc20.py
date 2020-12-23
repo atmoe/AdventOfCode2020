@@ -246,14 +246,13 @@ for y in range(tilesPerEdge):
             thisTileID = tiles[tileGrid[y][x-1]].adjMsk[1]
             leftTileID = tiles[tileGrid[y][x-1]].num
             topTileID  = tiles[tileGrid[y-1][x]].num
+
             tile = tiles[thisTileID]
             tileGrid[y][x] = tile.num
 
             while not (tile.adjMsk[3] == leftTileID): tile.rotate90()
             if tile.adjMsk[0] != topTileID: tile.flipY()
             #tile.display()
-
-        dbgPrint(tileGrid[y][x], end=' ')
 
     dbgPrint("")
 
@@ -328,7 +327,6 @@ for y in range(fH):
         finalGrid270[x][fH - y - 1]  = finalGrid180[y][x]
         finalGrid270F[x][fH - y - 1] = finalGrid180F[y][x]
 
-
 numMonster0   = 0
 numMonster90  = 0
 numMonster180 = 0
@@ -365,3 +363,4 @@ dbgPrint(f'Num Monster 270F = {numMonster270F}')
 maxMonsters = max(numMonster0, numMonster90, numMonster180, numMonster270, numMonster0F, numMonster90F, numMonster180F, numMonster270F)
 
 print(f'Water Roughness = {numHashes - 15*maxMonsters}')
+
