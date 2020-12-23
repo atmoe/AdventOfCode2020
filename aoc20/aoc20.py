@@ -4,7 +4,7 @@ import sys
 import re
 import copy
 
-debug = True
+debug = False
 def dbgPrint(string, end='\n'):
     if debug: print(string, end=end)
 
@@ -84,7 +84,6 @@ for line in inputFile.readlines():
     if line == '\n': 
         newTile = Tile(curTileNum, curTile)
         tiles[curTileNum] = newTile
-        print(curTileNum)
         continue
 
     m = re.match('^Tile (\d+):', line)
@@ -97,9 +96,10 @@ for line in inputFile.readlines():
 
 inputFile.close()
 
-for t in tiles.keys():
-    print("------------")
-    tiles[t].display()
+if debug:
+    for t in tiles.keys():
+        print("------------")
+        tiles[t].display()
 
 print("------------------")
 print("---- PART 1 ------")
@@ -204,8 +204,6 @@ def isMonster(grid, x_o, y_o):
     return True
 
 tilesPerEdge = int(len(edgeTiles)/4) + 2
-print(f'tilesPerEdge = {tilesPerEdge}')
-
 tileGrid = [[-1 for x in range(tilesPerEdge)] for y in range(tilesPerEdge)]
 
 for y in range(tilesPerEdge):
@@ -244,10 +242,10 @@ for y in range(tilesPerEdge):
 
         # Everything else looks like "middle"
         else:
+
             thisTileID = tiles[tileGrid[y][x-1]].adjMsk[1]
             leftTileID = tiles[tileGrid[y][x-1]].num
-            topTileID  = tiles[tileGrid[y-1][0]].num
-
+            topTileID  = tiles[tileGrid[y-1][x]].num
             tile = tiles[thisTileID]
             tileGrid[y][x] = tile.num
 
@@ -255,12 +253,39 @@ for y in range(tilesPerEdge):
             if tile.adjMsk[0] != topTileID: tile.flipY()
             #tile.display()
 
-        print(tileGrid[y][x], end=' ')
+        dbgPrint(tileGrid[y][x], end=' ')
 
-    print()
+    dbgPrint("")
 
+# DEBUG - clear centers to easily look for mismatches
+if debug:
+    finalGrid_dbg = []
+    for y in range(tilesPerEdge):
+        for x in range(tilesPerEdge):
+            arr = tiles[tileGrid[y][x]].array
+            arr[1][1:9] = [' ']*8
+            arr[2][1:9] = [' ']*8
+            arr[3][1:9] = [' ']*8
+            arr[4][1:9] = [' ']*8
+            arr[5][1:9] = [' ']*8
+            arr[6][1:9] = [' ']*8
+            arr[7][1:9] = [' ']*8
+            arr[8][1:9] = [' ']*8
+            for idx,a in enumerate(arr):
+                if x == 0:
+                    finalGrid_dbg.append("".join(a) + "|" )
+                else:
+                    finalGrid_dbg[y*11+idx] += ("".join(a) + "|")
+
+        finalGrid_dbg.append("-"*len(finalGrid_dbg[0]))
+
+    for r in finalGrid_dbg:
+        print(r)
+
+    quit()
+
+# Construct file grid from subtiles
 finalGrid = []
-numHashes = 0
 for y in range(tilesPerEdge):
     for x in range(tilesPerEdge):
         arr = tiles[tileGrid[y][x]].getTileArr()
@@ -270,34 +295,39 @@ for y in range(tilesPerEdge):
             else:
                 finalGrid[y*8+idx] += a
 
+for r in finalGrid:
+    dbgPrint("".join(r))
+
+numHashes = 0
 fW = len(finalGrid[0])
 fH = len(finalGrid)
-for r in finalGrid:
-    print("".join(r))
-
 finalGrid90   = [['.' for x in range(fW)] for y in range(fH)]
 finalGrid180  = [['.' for x in range(fW)] for y in range(fH)]
 finalGrid270  = [['.' for x in range(fW)] for y in range(fH)]
-finalGridF    = [['.' for x in range(fW)] for y in range(fH)]
+finalGrid0F   = [['.' for x in range(fW)] for y in range(fH)]
 finalGrid90F  = [['.' for x in range(fW)] for y in range(fH)]
 finalGrid180F = [['.' for x in range(fW)] for y in range(fH)]
 finalGrid270F = [['.' for x in range(fW)] for y in range(fH)]
 for y in range(fH):
     for x in range(fW):
         if finalGrid[y][x] == '#': numHashes += 1
-        finalGrid90[x][fH - y - 1] = finalGrid[y][x]
+        finalGrid0F[fH - y - 1][x]   = finalGrid[y][x]
+
 for y in range(fH):
     for x in range(fW):
-        finalGrid180[x][fH - y - 1] = finalGrid90[y][x]
+        finalGrid90[x][fH - y - 1]  = finalGrid[y][x]
+        finalGrid90F[x][fH - y - 1] = finalGrid0F[y][x]
+
 for y in range(fH):
     for x in range(fW):
-        finalGrid270[x][fH - y - 1] = finalGrid180[y][x]
+        finalGrid180[x][fH - y - 1]  = finalGrid90[y][x]
+        finalGrid180F[x][fH - y - 1] = finalGrid90F[y][x]
+
 for y in range(fH):
     for x in range(fW):
-        finalGridF[fH - y - 1][x]    = finalGrid[y][x]
-        finalGrid90F[fH - y - 1][x]  = finalGrid90[y][x]
-        finalGrid180F[fH - y - 1][x] = finalGrid180[y][x]
-        finalGrid270F[fH - y - 1][x] = finalGrid270[y][x]
+        finalGrid270[x][fH - y - 1]  = finalGrid180[y][x]
+        finalGrid270F[x][fH - y - 1] = finalGrid180F[y][x]
+
 
 numMonster0   = 0
 numMonster90  = 0
@@ -313,21 +343,25 @@ for y in range(fH - 2):
         if isMonster(finalGrid90,   x, y): numMonster90+=1
         if isMonster(finalGrid180,  x, y): numMonster180+=1
         if isMonster(finalGrid270,  x, y): numMonster270+=1
-        if isMonster(finalGridF,    x, y): numMonster0F+=1
+        if isMonster(finalGrid0F,   x, y): numMonster0F+=1
         if isMonster(finalGrid90F,  x, y): numMonster90F+=1
         if isMonster(finalGrid180F, x, y): numMonster180F+=1
         if isMonster(finalGrid270F, x, y): numMonster270F+=1
 
-print(f'Num Hashes      = {numHashes}')
-print(f'Num Monster   0 = {numMonster0}')
-print(f'Num Monster  90 = {numMonster90}')
-print(f'Num Monster 180 = {numMonster180}')
-print(f'Num Monster 270 = {numMonster270}')
-print(f'Num Monster   0F = {numMonster0F}')
-print(f'Num Monster  90F = {numMonster90F}')
-print(f'Num Monster 180F = {numMonster180F}')
-print(f'Num Monster 270F = {numMonster270F}')
+dbgPrint('------------')
+for r in finalGrid180F:
+    dbgPrint("".join(r))
 
+dbgPrint(f'Num Hashes      = {numHashes}')
+dbgPrint(f'Num Monster   0 = {numMonster0}')
+dbgPrint(f'Num Monster  90 = {numMonster90}')
+dbgPrint(f'Num Monster 180 = {numMonster180}')
+dbgPrint(f'Num Monster 270 = {numMonster270}')
+dbgPrint(f'Num Monster   0F = {numMonster0F}')
+dbgPrint(f'Num Monster  90F = {numMonster90F}')
+dbgPrint(f'Num Monster 180F = {numMonster180F}')
+dbgPrint(f'Num Monster 270F = {numMonster270F}')
 
-for r in finalGrid270F:
-    print("".join(r))
+maxMonsters = max(numMonster0, numMonster90, numMonster180, numMonster270, numMonster0F, numMonster90F, numMonster180F, numMonster270F)
+
+print(f'Water Roughness = {numHashes - 15*maxMonsters}')
