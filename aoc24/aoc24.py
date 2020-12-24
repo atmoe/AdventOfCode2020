@@ -31,7 +31,7 @@ for line in inputFile.readlines():
 inputFile.close()
 
 for d in dirList:
-    print(d)
+    dbgPrint(d)
 
 print("------------------")
 print("---- PART 1 ------")
@@ -59,7 +59,7 @@ for d in dirList:
             hexRow-=1.0
             hexCol+=0.5
 
-    print(f'{hexRow} {hexCol}')
+    dbgPrint(f'{hexRow} {hexCol}')
     hashKey =(hexRow, hexCol)
     if not hashKey in tiles.keys():
         tiles[hashKey] = False
@@ -131,10 +131,11 @@ for day in range(100):
         if tiles[k] == False:
             numBlack+=1
 
-    print(f'Day {day+1}: {numBlack}')
+    if day < 99:
+        dbgPrint(f'Day {day+1}: {numBlack}')
 
 
-
+print(f'Day {day+1}: {numBlack}')
 
 
 
